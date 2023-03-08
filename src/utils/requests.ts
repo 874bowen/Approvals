@@ -30,12 +30,13 @@ export const getTransactionsPaginated = ({
   if (start > data.transactions.length) {
     throw new Error(`Invalid page ${page}`)
   }
-
+  let prevPage: PaginatedRequestParams = {page: page - 1}
+  let prevRes = page !== 0 ? getTransactionsPaginated(prevPage).data : null
+  
   const nextPage = end < data.transactions.length ? page + 1 : null
-
   return {
     nextPage,
-    data: data.transactions.slice(start, end),
+    data: prevRes !== null ? [...data.transactions.slice(start, end), ...prevRes]: data.transactions.slice(start, end),
   }
 }
 
