@@ -5,6 +5,7 @@ import {
   SetTransactionApprovalParams,
   Transaction,
   Employee,
+  TransactionsLengthAndPageLimit,
 } from "./types"
 import mockData from "../mock-data.json"
 
@@ -16,6 +17,10 @@ const data: { employees: Employee[]; transactions: Transaction[] } = {
 }
 
 export const getEmployees = (): Employee[] => data.employees
+
+export const getTransactionsLengthAndPageLimit = (): TransactionsLengthAndPageLimit => {
+  return {transactionsLength: data.transactions.length, pageLimit: TRANSACTIONS_PER_PAGE}
+}
 
 export const getTransactionsPaginated = ({
   page,

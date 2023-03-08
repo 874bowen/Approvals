@@ -30,3 +30,8 @@ export type SetTransactionApprovalParams = {
   transactionId: string
   value: boolean
 }
+
+export type TransactionsLengthAndPageLimit = {
+  transactionsLength: number
+  pageLimit: number
+}

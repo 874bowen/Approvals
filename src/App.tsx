@@ -6,6 +6,7 @@ import { useEmployees } from "./hooks/useEmployees"
 import { usePaginatedTransactions } from "./hooks/usePaginatedTransactions"
 import { useTransactionsByEmployee } from "./hooks/useTransactionsByEmployee"
 import { EMPTY_EMPLOYEE } from "./utils/constants"
+import { getTransactionsLengthAndPageLimit } from "./utils/requests"
 import { Employee } from "./utils/types"
 
 export function App() {
@@ -13,6 +14,7 @@ export function App() {
   const { data: paginatedTransactions, ...paginatedTransactionsUtils } = usePaginatedTransactions()
   const { data: transactionsByEmployee, ...transactionsByEmployeeUtils } = useTransactionsByEmployee()
   const [isLoading, setIsLoading] = useState(false)
+  const [isPaginatedRequest, setIsPaginatedRequest] = useState(false)
 
   const transactions = useMemo(
     () => paginatedTransactions?.data ?? transactionsByEmployee ?? null,
@@ -31,6 +33,7 @@ export function App() {
 
   const loadTransactionsByEmployee = useCallback(
     async (employeeId: string) => {
+      setIsPaginatedRequest(true)
       paginatedTransactionsUtils.invalidateData()
       await transactionsByEmployeeUtils.fetchById(employeeId)
     },
@@ -38,11 +41,13 @@ export function App() {
   )
 
   useEffect(() => {
+    
+    if (employees) setIsLoading(false)
     if (employees === null && !employeeUtils.loading) {
       loadAllTransactions()
     }
   }, [employeeUtils.loading, employees, loadAllTransactions])
-
+  
   return (
     <Fragment>
       <main className="MainContainer">
@@ -76,9 +81,15 @@ export function App() {
 
           {transactions !== null && (
             <button
+              style={isPaginatedRequest ? {display: "none"}: {display: 'block'}}
               className="RampButton"
               disabled={paginatedTransactionsUtils.loading}
-              onClick={async () => {
+              onClick={async () => { 
+                const {transactionsLength, pageLimit} = getTransactionsLengthAndPageLimit()
+                
+                if ((transactions.length + pageLimit) >= transactionsLength) {
+                  setIsPaginatedRequest(true)
+                }             
                 await loadAllTransactions()
               }}
             >
